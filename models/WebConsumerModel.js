@@ -5,10 +5,10 @@ const requestSchema = new mongoose.Schema({
   LastModified:  { type: Date, default: Date.now },
   Name:          { type: String, default: '' },
   Url:           { type: String, default: '' },
-  Method:        { type: Number, default: 0 },
+  Method:        { type: String, default: 'GET' },
   RequestBody:   { type: String, default: '' },
   ContentType:   { type: String, default: '' },
-  AuthType:      { type: Number, default: 0 },
+  AuthType:      { type: String, default: 'None' },
   AuthUrl:       { type: String, default: '' },
   ApiKey:        { type: String, default: '' },
   ApiSecret:     { type: String, default: '' }

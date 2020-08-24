@@ -1,11 +1,16 @@
 const express = require('express');
+const logger = require('morgan');
+const cors = require('cors');
 const pjson = require('./package.json');
 const constants = require('./constants');
 const webConsumerUtils = require('./utils/web-consumer-utils');
+const resultHandler = require('./utils/result-handler');
 
 const app = express();
+app.use(cors());
+app.use(logger('tiny'));
 
-if (!webConsumerUtils.connectToDatabase()) { return; }
+if (!webConsumerUtils.connectToDatabase()) { process.exit; }
 
 let intervalHandle = undefined;
 
@@ -19,7 +24,10 @@ app.get('/', function (req, res) {
       'consumerMethod' : webConsumer.Method,
       'consumerPostBody' : webConsumer.RequestBody,
       'consumerAuthType' : webConsumer.AuthType,
+      'consumerJsonPathCategory' : webConsumer.JsonPathCategory,
+      'consumerJsonPathData' : webConsumer.JsonPathData,
       'interval' : `${constants.REQUEST_INTERVAL}ms`,
+      'saveDuplicates' : constants.SAVE_DUPLICATES,
       'isRunning' : intervalHandle ? true : false
     });
   });
@@ -27,10 +35,8 @@ app.get('/', function (req, res) {
 
 app.post('/test', function(req, res) {
   webConsumerUtils.findWebConsumer((webConsumer) => {
-    webConsumerUtils.executeWebConsumer(webConsumer, (responseBody) => {
-      return res.status(200).send({
-        "responseBody": responseBody
-      });
+    webConsumerUtils.executeWebConsumer(webConsumer, (result) => {
+      return res.status(200).send(result);
     });
   });
 });
@@ -38,10 +44,16 @@ app.post('/test', function(req, res) {
 app.post('/execute', function(req, res) {
   webConsumerUtils.findWebConsumer((webConsumer) => {
     if (intervalHandle) { clearInterval(intervalHandle); }
-    intervalHandle = webConsumerUtils.executeWebConsumerOnInterval(webConsumer, (responseBody) => {
-      // TODO - save response to models DB
+    intervalHandle = webConsumerUtils.executeWebConsumerOnInterval(webConsumer, (result) => {
+      
       console.log(`Executed request at ${(new Date()).toLocaleTimeString()}`);
-      console.log(responseBody);
+      
+      if (constants.SAVE_DUPLICATES) {
+        resultHandler.processResult(result);
+      } else {
+        resultHandler.processResultWithDupe(result);
+      }
+
     });
     return res.status(200).send({
       'message' : 'Successfully started the sandcrawler'

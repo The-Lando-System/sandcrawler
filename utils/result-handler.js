@@ -1,6 +1,7 @@
 const md5 = require('md5');
 const { v4: uuidv4 } = require('uuid');
 const CategoryDataModel = require("../models/CategoryDataModel");
+const constants = require('../constants');
 
 module.exports = {
 
@@ -39,7 +40,7 @@ module.exports = {
 
     CategoryDataModel.create(categoryResult, (err, savedResult) => {
       if (err) { console.log(err); return; }
-      console.log(`Saved new category data model with hash [${savedResult.Hash}]`);
+      console.log(`Saved new entry in ${constants.COLLECTION_NAME} collection with hash [${savedResult.Hash}]`);
     });
   },
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dbUtils = require('../utils/db-utils');
 
 const requestSchema = new mongoose.Schema({
   _id:              { type: String, default: '' },
@@ -16,4 +17,4 @@ const requestSchema = new mongoose.Schema({
   JsonPathData:     { type: String, default: '' }
 });
 
-module.exports = mongoose.model('WebConsumer', requestSchema, 'Request');
+module.exports = dbUtils.getConnection('configs').model('WebRequests', requestSchema, 'WebRequests');

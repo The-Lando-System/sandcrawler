@@ -1,4 +1,4 @@
-const WebConsumerModel = require('../models/WebConsumerModel');
+const WebRequestsModel = require('../models/WebRequestsModel');
 const constants = require('../constants');
 const mongoose = require('mongoose');
 const request = require('request');
@@ -6,37 +6,37 @@ const jpath = require('jsonpath');
 
 module.exports = {
 
-  findWebConsumer: function(callback) {
-    if (constants.WEB_CONSUMER_ID === undefined) {
-      console.log('Missing env variable: WEB_CONSUMER_ID');
+  findWebRequest: function(callback) {
+    if (constants.WEB_REQUEST_ID === undefined) {
+      console.log('Missing env variable: WEB_REQUEST_ID');
       callback(null);
     }
   
-    WebConsumerModel.findOne({ _id: constants.WEB_CONSUMER_ID }, (err, webConsumerModel) => {
-      if (webConsumerModel === null) {
-        console.log(`Failed to find model with id [${constants.WEB_CONSUMER_ID}]`);
+    WebRequestsModel.findOne({ _id: constants.WEB_REQUEST_ID }, (err, webRequestModel) => {
+      if (webRequestModel === null) {
+        console.log(`Failed to find model with id [${constants.WEB_REQUEST_ID}]`);
         callback(null);
       } else {
-        callback(webConsumerModel);
+        callback(webRequestModel);
       }
     });
   },
 
-  executeWebConsumerOnInterval: function(webConsumerModel, callback) {
+  executeWebRequestOnInterval: function(webRequestModel, callback) {
 
     // Schedule the request at an interval
     return setInterval(() => {
-      module.exports.executeWebConsumer(webConsumerModel, callback);
+      module.exports.executeWebRequest(webRequestModel, callback);
     },
     constants.REQUEST_INTERVAL);
   
   },
 
-  executeWebConsumer: function(webConsumerModel, callback) {
-    if (webConsumerModel.AuthType === 'OAuth2') {
-      this.executeOauthRequest(webConsumerModel, callback);
+  executeWebRequest: function(webRequestModel, callback) {
+    if (webRequestModel.AuthType === 'OAuth2') {
+      this.executeOauthRequest(webRequestModel, callback);
     } else {
-      this.executeRequest(webConsumerModel, callback);
+      this.executeRequest(webRequestModel, callback);
     }
   },
 
@@ -145,17 +145,17 @@ module.exports = {
 
   connectToDatabase: function() {
     
-    if (constants.WEB_CONSUMER_DB_CONNECTION === undefined) {
-      console.log('Missing env variable: WEB_CONSUMER_DB_CONNECTION');
+    if (constants.WEB_REQUEST_DB_CONNECTION === undefined) {
+      console.log('Missing env variable: WEB_REQUEST_DB_CONNECTION');
       return false;
     }
 
-    mongoose.connect(constants.WEB_CONSUMER_DB_CONNECTION, {
+    mongoose.connect(constants.WEB_REQUEST_DB_CONNECTION, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     }, function(err) {
       if (err){
-        console.log('ERROR! Could not connect to MongoDB!')
+        console.log(`ERROR! Could not connect to MongoDB at URL [${constants.WEB_REQUEST_DB_CONNECTION}]`)
         if (err.message.includes('ECONNREFUSED')){
           console.log('The MongoDB connection was refused... Is your MongoDB running?');
         }

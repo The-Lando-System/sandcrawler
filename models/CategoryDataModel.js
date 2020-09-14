@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const constants = require('../constants');
+const dbUtils = require('../utils/db-utils');
 
 const categoryDataModelSchema = new mongoose.Schema({
   _id:           { type: String, default: '' },
@@ -8,4 +10,4 @@ const categoryDataModelSchema = new mongoose.Schema({
   Hash:          { type: String, default: '' }
 });
 
-module.exports = mongoose.model('CategoryDataModel', categoryDataModelSchema, 'CategoryDataModel');
+module.exports = dbUtils.getConnection('categorization-data').model('CategoryDataModel', categoryDataModelSchema, constants.COLLECTION_NAME);

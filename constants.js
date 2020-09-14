@@ -4,8 +4,10 @@ module.exports = {
     'matt.voget@gmail.com' : true
   },
   PORT: process.env.PORT | 3000,
-  WEB_CONSUMER_DB_CONNECTION: process.env.WEB_CONSUMER_DB_CONNECTION,
-  WEB_CONSUMER_ID: process.env.WEB_CONSUMER_ID,
+  WEB_REQUEST_DB_CONNECTION: process.env.WEB_REQUEST_DB_CONNECTION,
+  RESULT_DB_CONNECTION: process.env.RESULT_DB_CONNECTION,
+  WEB_REQUEST_ID: process.env.WEB_REQUEST_ID,
   REQUEST_INTERVAL: process.env.REQUEST_INTERVAL || 10000,
-  SAVE_DUPLICATES: process.env.SAVE_DUPLICATES || false
+  SAVE_DUPLICATES: process.env.SAVE_DUPLICATES || false,
+  COLLECTION_NAME: process.env.COLLECTION_NAME || 'DefaultCollection'
 };

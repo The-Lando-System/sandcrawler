@@ -3,29 +3,28 @@ const logger = require('morgan');
 const cors = require('cors');
 const pjson = require('./package.json');
 const constants = require('./constants');
-const webConsumerUtils = require('./utils/web-consumer-utils');
+const webRequestUtils = require('./utils/web-request-utils');
 const resultHandler = require('./utils/result-handler');
 
 const app = express();
 app.use(cors());
 app.use(logger('tiny'));
 
-if (!webConsumerUtils.connectToDatabase()) { process.exit; }
-
 let intervalHandle = undefined;
 
 app.get('/', function (req, res) {
-  webConsumerUtils.findWebConsumer((webConsumer) => {
+  webRequestUtils.findWebRequest((webRequestModel) => {
     return res.status(200).send({
       'application' : `${pjson.name}-${pjson.version}`,
-      'consumerId' : webConsumer._id,
-      'consumerName' : webConsumer.Name,
-      'consumerUrl' : webConsumer.Url,
-      'consumerMethod' : webConsumer.Method,
-      'consumerPostBody' : webConsumer.RequestBody,
-      'consumerAuthType' : webConsumer.AuthType,
-      'consumerJsonPathCategory' : webConsumer.JsonPathCategory,
-      'consumerJsonPathData' : webConsumer.JsonPathData,
+      'webRequestId' : webRequestModel._id,
+      'webRequestName' : webRequestModel.Name,
+      'webRequestUrl' : webRequestModel.Url,
+      'webRequestMethod' : webRequestModel.Method,
+      'webRequestPostBody' : webRequestModel.RequestBody,
+      'webRequestAuthType' : webRequestModel.AuthType,
+      'webRequestJsonPathCategory' : webRequestModel.JsonPathCategory,
+      'webRequestJsonPathData' : webRequestModel.JsonPathData,
+      'resultCollection' : constants.COLLECTION_NAME,
       'interval' : `${constants.REQUEST_INTERVAL}ms`,
       'saveDuplicates' : constants.SAVE_DUPLICATES,
       'isRunning' : intervalHandle ? true : false
@@ -42,9 +41,9 @@ app.post('/test', function(req, res) {
 });
 
 app.post('/execute', function(req, res) {
-  webConsumerUtils.findWebConsumer((webConsumer) => {
+  webRequestUtils.findWebRequest((webRequestModel) => {
     if (intervalHandle) { clearInterval(intervalHandle); }
-    intervalHandle = webConsumerUtils.executeWebConsumerOnInterval(webConsumer, (result) => {
+    intervalHandle = webRequestUtils.executeWebRequestOnInterval(webRequestModel, (result) => {
       
       console.log(`Executed request at ${(new Date()).toLocaleTimeString()}`);
       
